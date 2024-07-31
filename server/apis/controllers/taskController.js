@@ -66,11 +66,11 @@ const update_Specific_Task_ByUser = async (req, res) => {
   try {
     const { taskId } = req.params;
     const userId = req.user.id;
-    const { taskTitle, taskDescription } = req.body;
+    const { taskTitle, taskDescription, status } = req.body;
 
     const task = await TASK.findOneAndUpdate(
       { _id: taskId, userReference: userId },
-      { title: taskTitle, description: taskDescription },
+      { title: taskTitle, description: taskDescription, status: status},
       { new: true }
     );
 
