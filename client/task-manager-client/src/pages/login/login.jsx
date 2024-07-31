@@ -1,18 +1,29 @@
-
+import { useState } from 'react';
 import { Container, Box, TextField, Button, Typography, Link, AppBar, Toolbar } from '@mui/material';
 import { Google as GoogleIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
-    // Implement login logic here
+    try {
+      const response = await axios.post('http://localhost:5000/login', { email, password });
+      const { token } = response.data;
+      localStorage.setItem('authToken', token); // Store the token
+      navigate('/dashboard'); // Redirect to dashboard
+    } catch (error) {
+      console.error('Error logging in:', error);
+      // Optionally, set error message state to display to the user
+    }
   };
 
   const handleGoogleLogin = () => {
-    // Implement Google login logic here
+    window.location.href = 'http://localhost:5000/auth/google';
   };
 
   return (
@@ -49,6 +60,8 @@ const Login = () => {
               name="email"
               autoComplete="email"
               autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
             <TextField
               variant="outlined"
@@ -60,6 +73,8 @@ const Login = () => {
               type="password"
               id="password"
               autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <Button
               type="submit"
