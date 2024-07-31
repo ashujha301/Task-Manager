@@ -1,10 +1,8 @@
-const express = require("express");
+// userServices.js
+
 const bcrypt = require("bcrypt");
 const USER = require("../../models/userModel");
-const CODE = require("../../models/codeModel");
-
-//ENV file
-require('dotenv').config();
+const TASK = require("../../models/taskModel");
 
 //------------------------------------------------------------XX Register User  XX-----------------------------------------------------------
 const registerUser = async (email, name, password) => {
@@ -12,7 +10,6 @@ const registerUser = async (email, name, password) => {
     // Check if the email already exists
     const existingUser = await USER.findOne({ email });
     if (existingUser) {
-      console.log("Email already exists");
       throw new Error("Email already exists");
     }
 
@@ -21,15 +18,17 @@ const registerUser = async (email, name, password) => {
 
     // Create a new user object
     const newUser = new USER({
-      email: email,
-      name: name,
+      email,
+      name,
       password: hashedPassword,
     });
 
     // Save the new user to the database
     await newUser.save();
+    return newUser;
   } catch (error) {
     console.error("Error registering user:", error);
+    throw new Error("Error registering user");
   }
 };
 
@@ -38,45 +37,78 @@ const authenticateUser = async (email, password) => {
   try {
     const user = await USER.findOne({ email });
 
-    if (!user && (await bcrypt.compare(password, user.password))) {
-      throw new error("Invalid email and password");
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw new Error("Invalid email or password");
     }
 
     return user;
   } catch (error) {
-    console.error(error);
+    console.error("Error authenticating user:", error);
+    throw new Error("Authentication failed");
   }
 };
 
-//only for checking
-
-const getusers = async (id) => {
-  const user = await USER.findById(id);
-
-  if (!user) {
-    throw new Error("No user found!"); //error res is not defined
-  }
-  return user;
-};
-
-//------------------------------------------------------------XX  all codes of user  XX-----------------------------------------------------------
-
-const getUserCodes = async (userId) => {
+//------------------------------------------------------------XX Get User By ID XX-----------------------------------------------------------
+const getUserById = async (id) => {
   try {
-    const codes = await CODE.find({ userReference: userId });
-
-    return codes.map((code) => ({ name: code.name }));
-    
+    const user = await USER.findById(id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    return user;
   } catch (error) {
-    throw new Error("Error fetching codes by user");
+    console.error("Error fetching user:", error);
+    throw new Error("Error fetching user");
   }
 };
 
+//------------------------------------------------------------XX Get All Tasks By User XX-----------------------------------------------------------
+const get_All_User_Tasks = async (userId) => {
+  try {
+    const tasks = await TASK.find({ userReference: userId });
+    return tasks;
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    throw new Error("Error fetching tasks by user");
+  }
+};
+
+//------------------------------------------------------------XX Get Specific Task XX-----------------------------------------------------------
+const get_Specific_Task = async (taskId, userId) => {
+  try {
+    const task = await TASK.findOne({ _id: taskId, userReference: userId });
+    if (!task) {
+      throw new Error("Task not found");
+    }
+    return task;
+  } catch (error) {
+    console.error("Error fetching task:", error);
+    throw new Error(`Couldn't find task by taskId: ${taskId}`);
+  }
+};
+
+//------------------------------------------------------------XX Create Task XX-----------------------------------------------------------
+const taskCreate = async (title, description, userId) => {
+  try {
+    const newTask = new TASK({
+      title,
+      description,
+      userReference: userId
+    });
+
+    await newTask.save();
+    return newTask;
+  } catch (error) {
+    console.error("Error creating task:", error);
+    throw new Error("Error creating task");
+  }
+};
 
 module.exports = {
   registerUser,
   authenticateUser,
-  getusers,
-  getUserCodes,
+  getUserById,
+  get_All_User_Tasks,
+  get_Specific_Task,
+  taskCreate
 };
-

@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require("cors");
+const {mongodbClient} = require('./config/mongodbConfig');
 const authRoutes = require('./apis/routes/authRoutes');
 const unAuthRoutes = require('./apis/routes/unAuthRoutes');
 const authMiddlewarefunc = require('./middleware/authMiddleware');
@@ -23,10 +24,15 @@ const corsOptions = {
 const port = 5000;
 
 //routes
-app.use('/user',authMiddlewarefunc,authRoutes);
+app.use('/api',authMiddlewarefunc,authRoutes);
 app.use('/',unAuthRoutes);
 
 
 app.listen(port, ()=>{
     console.log(`server is running on Port ${port}`);
+});
+
+//MongoDB connection
+mongodbClient.catch(error => {
+  console.error(error);
 });

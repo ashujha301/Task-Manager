@@ -13,10 +13,15 @@ const taskSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "USER" //reference to user model
   },
+  status: {
+    type: String,
+    enum: ["To Do", "In Progress", "Completed"], // Example statuses
+    default: "To Do",
+  },
 },
 { timestamps: true }
 );
 
-const CODE = new mongoose.model("CODE", codeSchema);
+const TASK = new mongoose.model("TASK", taskSchema);
 
-module.exports = CODE;
+module.exports = TASK;
