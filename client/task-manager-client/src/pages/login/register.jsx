@@ -1,63 +1,97 @@
-import { useState } from 'react';
-import { NavLink,useNavigate } from 'react-router-dom';
-//import {useDispatch} from 'react-redux';
-import axios from 'axios';
-import './index.css'; // Import the CSS file for styling
+import { Container, Box, TextField, Button, Typography, Link, AppBar, Toolbar } from '@mui/material';
+import { Google as GoogleIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
-const Register = () => {
-  const navigate=useNavigate();
-  const [username, setUsername] = useState();
-  const [password, setPassword] = useState();
-  const [email, setEmail] = useState();
-  //const dispatch = useDispatch();
+const Login = () => {
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if(!username || !password || !email){
-      alert("Please fill all fields");
-    }
+  const handleLogin = (event) => {
+    event.preventDefault();
+    // Implement login logic here
+  };
 
-    try {
-      const response = await axios.post("http://localhost:5000/register",{email,username,password});
-
-      if(!response.data){
-        throw new Error("Something went wrong while registering");
-      }
-
-      navigate("/login");
-
-    } catch (error) {
-      console.log(error);
-      alert(error.message);
-    }
+  const handleGoogleLogin = () => {
+    // Implement Google login logic here
   };
 
   return (
-    <div className="login-container">
-      <form className="login-form" onSubmit={handleSubmit}>
-        <h2>Register</h2>
-        <div className="form-group">
-          <label htmlFor="username">Username:</label>
-          <input type="text" id="username" name="username" value={username} onChange={(e)=> setUsername(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input type="email" id="email" name="email" value={email} onChange={(e)=> setEmail(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input type="password" id="password" name="password" value={password} onChange={(e)=> setPassword(e.target.value)} required />
-        </div>
-        <button type="submit">Register</button>
-        <p>Already Have Account:-<NavLink to={"/login"}><a >Login Here</a></NavLink></p>
-        <NavLink to={"/"}>
-        <button type="button" style={{background: "grey"}}>
-          Return to Home
-        </button>
-        </NavLink>
-      </form>
-    </div>
+    <>
+      <AppBar position="static" color="primary">
+        <Toolbar>
+          <Typography variant="h6" style={{ flexGrow: 1 }}>
+            Task Manager
+          </Typography>
+          <Button color="inherit" onClick={() => navigate('/login')}>Login</Button>
+          <Button color="inherit" onClick={() => navigate('/signup')}>Signup</Button>
+        </Toolbar>
+      </AppBar>
+      <Container component="main" maxWidth="xs">
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Typography component="h1" variant="h5">
+            Login
+          </Typography>
+          <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email"
+              name="email"
+              autoComplete="email"
+              autoFocus
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Login
+            </Button>
+            <Box display="flex" justifyContent="space-between">
+              <Typography variant="body2">
+                Don't have an account?{' '}
+                <Link href="#" variant="body2" onClick={() => navigate('/signup')}>
+                  Signup
+                </Link>
+              </Typography>
+            </Box>
+            <Button
+              fullWidth
+              variant="outlined"
+              color="primary"
+              startIcon={<GoogleIcon />}
+              onClick={handleGoogleLogin}
+              sx={{ mt: 2 }}
+            >
+              Login with Google
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+    </>
   );
 };
 
-export default Register;
+export default Login;

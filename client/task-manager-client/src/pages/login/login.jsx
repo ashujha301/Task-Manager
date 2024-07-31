@@ -1,82 +1,97 @@
-import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { loginSuccess } from "../../redux/actions/authAction";
-import "./index.css"; // Import the CSS file for styling
-import axios from "axios";
+
+import { Container, Box, TextField, Button, Typography, Link, AppBar, Toolbar } from '@mui/material';
+import { Google as GoogleIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+
 const Login = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleLogin = (event) => {
+    event.preventDefault();
+    // Implement login logic here
+  };
 
-    if (!email || !password) {
-      alert("Please fill out all fields");
-      return;
-    }
-
-    try {
-      const response = await axios.post("http://localhost:5000/login", {
-        email,
-        password,
-      });
-
-      if (!response) {
-        throw new Error("Login failed");
-      }
-
-      const { userId , username, token } = response.data;
-      //console.log(username);
-      dispatch(loginSuccess(userId ,username,token));
-  
-
-      navigate("/editor");
-    } catch (error) {
-      console.log("login failed:", error);
-      alert(
-        "Login failed. Please check your email and password and try again."
-      );
-    }
+  const handleGoogleLogin = () => {
+    // Implement Google login logic here
   };
 
   return (
-    <div className="login-container">
-      <form className="login-form">
-        <h2>Login</h2>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            type="text"
-            id="email"
-            name="email"
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="button" onClick={handleSubmit}>
-          Login
-        </button>
-        <p>Create Account:-<NavLink to={"/register"}><a >Register Here</a></NavLink></p>
-        <NavLink to={"/"}>
-        <button type="button" style={{background: "grey"}}>
-          Return to home
-        </button>
-        </NavLink>
-      </form>
-    </div>
+    <>
+      <AppBar position="static" color="primary">
+        <Toolbar>
+          <Typography variant="h6" style={{ flexGrow: 1 }}>
+            Task Manager
+          </Typography>
+          <Button color="inherit" onClick={() => navigate('/login')}>Login</Button>
+          <Button color="inherit" onClick={() => navigate('/register')}>Signup</Button>
+        </Toolbar>
+      </AppBar>
+      <Container component="main" maxWidth="xs">
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Typography component="h1" variant="h5">
+            Login
+          </Typography>
+          <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email"
+              name="email"
+              autoComplete="email"
+              autoFocus
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Login
+            </Button>
+            <Box display="flex" justifyContent="space-between">
+              <Typography variant="body2">
+                Don't have an account?{' '}
+                <Link href="#" variant="body2" onClick={() => navigate('/register')}>
+                  Signup
+                </Link>
+              </Typography>
+            </Box>
+            <Button
+              fullWidth
+              variant="outlined"
+              color="primary"
+              startIcon={<GoogleIcon />}
+              onClick={handleGoogleLogin}
+              sx={{ mt: 2 }}
+            >
+              Login with Google
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+    </>
   );
 };
 

@@ -1,3 +1,5 @@
+// userModel.js
+
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
@@ -14,11 +16,15 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, "Enter a Password"]
+    required: function() { return !this.googleId; } // Only required if googleId is not present
+  },
+  googleId: {
+    type: String,
+    unique: true,
   }
-},
+}, 
 { timestamps: true }
 ); 
 
-const USER = new mongoose.model('USER', userSchema);
+const USER = mongoose.model('USER', userSchema);
 module.exports = USER;

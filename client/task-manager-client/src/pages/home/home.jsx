@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import "./home.css";
+//import "./home.css";
 
 const sentences = [
   "Personal Task manager",

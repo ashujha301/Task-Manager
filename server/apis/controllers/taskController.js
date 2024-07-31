@@ -9,17 +9,18 @@ const axios = require("axios");
 // Create a new task
 const createTask = async (req, res) => {
   try {
-    const { taskTitle, taskDescription } = req.body;
+    const { taskTitle, taskDescription, taskStatus } = req.body;
     const userId = req.user.id;
 
-    if (!taskTitle || !taskDescription) {
+    if (!taskTitle || !taskDescription || !taskStatus) {
       return res.status(400).json({ msg: "Please provide all the details" });
     }
 
     const newTask = await TASK.create({
       title: taskTitle,
       description: taskDescription,
-      userReference: userId
+      userReference: userId,
+      status: taskStatus
     });
 
     res.status(201).json({ message: "Task created successfully", task: newTask });
