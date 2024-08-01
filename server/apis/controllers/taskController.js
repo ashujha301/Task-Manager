@@ -115,7 +115,7 @@ const moveTask = async (req, res) => {
       const { newStatus } = req.body;
   
       // Validate the newStatus
-      if (!["To Do", "In Progress", "Completed"].includes(newStatus)) {
+      if (!["To Do", "In Progress", "Done"].includes(newStatus)) {
         return res.status(400).json({ msg: "Invalid status" });
       }
   

@@ -19,16 +19,24 @@ import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
+const api = axios.create({
+  baseURL: 'https://task-manager-nx1i.onrender.com'
+});
+
 const Dashboard = () => {
   const [tasks, setTasks] = useState({
     todo: [],
     inProgress: [],
-    done: []
+    done: [],
   });
   const [detailsModal, setDetailsModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [addTaskModal, setAddTaskModal] = useState(false);
-  const [newTask, setNewTask] = useState({ taskTitle: "", taskDescription: "", taskStatus: "" });
+  const [newTask, setNewTask] = useState({
+    taskTitle: "",
+    taskDescription: "",
+    taskStatus: "",
+  });
   const [selectedTask, setSelectedTask] = useState(null);
   const [error, setError] = useState("");
 
@@ -49,21 +57,24 @@ const Dashboard = () => {
   }, []);
 
   const fetchTasks = () => {
-    axios.get("http://localhost:5000/api/", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
-    })
-    .then(response => {
-      const data = response.data;
-      const categorizedTasks = {
-        todo: data.filter(task => task.status === "To Do"),
-        inProgress: data.filter(task => task.status === "In Progress"),
-        done: data.filter(task => task.status === "Done")
-      };
-      setTasks(categorizedTasks);
-    })
-    .catch(error => {
-      console.error("Error fetching tasks:", error);
-    });
+    api
+      .get("/api/", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      })
+      .then((response) => {
+        const data = response.data;
+        const categorizedTasks = {
+          todo: data.filter((task) => task.status === "To Do"),
+          inProgress: data.filter((task) => task.status === "In Progress"),
+          done: data.filter((task) => task.status === "Done"),
+        };
+        setTasks(categorizedTasks);
+      })
+      .catch((error) => {
+        console.error("Error fetching tasks:", error);
+      });
   };
 
   const handleAddTaskOpen = () => setAddTaskModal(true);
@@ -78,22 +89,25 @@ const Dashboard = () => {
   };
 
   const handleCreateTask = () => {
-    axios.post("http://localhost:5000/api/", newTask, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
-    })
-    .then(response => {
-      const addedTask = response.data.task;
-      const statusCategory = addedTask.status.toLowerCase().replace(" ", ""); // Normalize status key
-      setTasks(prevTasks => ({
-        ...prevTasks,
-        [statusCategory]: [...prevTasks[statusCategory], addedTask]
-      }));
-      setAddTaskModal(false);
-    })
-    .catch(error => {
-      console.error("Error adding task:", error);
-      setError("Failed to create task. Please try again.");
-    });
+    api
+      .post("/api/", newTask, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      })
+      .then((response) => {
+        const addedTask = response.data.task;
+        const statusCategory = addedTask.status.toLowerCase().replace(" ", ""); // Normalize status key
+        setTasks((prevTasks) => ({
+          ...prevTasks,
+          [statusCategory]: [...prevTasks[statusCategory], addedTask],
+        }));
+        setAddTaskModal(false);
+      })
+      .catch((error) => {
+        console.error("Error adding task:", error);
+        setError("Failed to create task. Please try again.");
+      });
   };
 
   const openDetailsModal = (taskId) => {
@@ -109,50 +123,67 @@ const Dashboard = () => {
   };
 
   const findTaskById = (taskId) => {
-    return Object.values(tasks).flat().find(task => task._id === taskId);
+    return Object.values(tasks)
+      .flat()
+      .find((task) => task._id === taskId);
   };
 
   const handleDeleteTask = (taskId) => {
-    axios.delete(`http://localhost:5000/api/${taskId}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
-    })
-    .then(() => {
-      setTasks(prevTasks => {
-        const newTasks = { ...prevTasks };
-        for (const status in newTasks) {
-          newTasks[status] = newTasks[status].filter(task => task._id !== taskId);
-        }
-        return newTasks;
+    api
+      .delete(`/api/${taskId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      })
+      .then(() => {
+        setTasks((prevTasks) => {
+          const newTasks = { ...prevTasks };
+          for (const status in newTasks) {
+            newTasks[status] = newTasks[status].filter(
+              (task) => task._id !== taskId
+            );
+          }
+          return newTasks;
+        });
+      })
+      .catch((error) => {
+        console.error("Error deleting task:", error);
+        setError("Failed to delete task. Please try again.");
       });
-    })
-    .catch(error => {
-      console.error("Error deleting task:", error);
-      setError("Failed to delete task. Please try again.");
-    });
   };
 
   const handleUpdateTask = () => {
     if (selectedTask) {
-      axios.put(`http://localhost:5000/api/${selectedTask._id}`, selectedTask, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
-      })
-      .then(response => {
-        const updatedTask = response.data.task;
-        const statusCategory = updatedTask.status.toLowerCase().replace(" ", "");
-        setTasks(prevTasks => {
-          const newTasks = { ...prevTasks };
-          for (const status in newTasks) {
-            newTasks[status] = newTasks[status].filter(task => task._id !== updatedTask._id);
-          }
-          newTasks[statusCategory] = [...newTasks[statusCategory], updatedTask];
-          return newTasks;
+      api
+        .put(`/api/${selectedTask._id}`, selectedTask, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        })
+        .then((response) => {
+          const updatedTask = response.data.task;
+          const statusCategory = updatedTask.status
+            .toLowerCase()
+            .replace(" ", "");
+          setTasks((prevTasks) => {
+            const newTasks = { ...prevTasks };
+            for (const status in newTasks) {
+              newTasks[status] = newTasks[status].filter(
+                (task) => task._id !== updatedTask._id
+              );
+            }
+            newTasks[statusCategory] = [
+              ...newTasks[statusCategory],
+              updatedTask,
+            ];
+            return newTasks;
+          });
+          setEditModal(false);
+        })
+        .catch((error) => {
+          console.error("Error updating task:", error);
+          setError("Failed to update task. Please try again.");
         });
-        setEditModal(false);
-      })
-      .catch(error => {
-        console.error("Error updating task:", error);
-        setError("Failed to update task. Please try again.");
-      });
     }
   };
 
@@ -166,21 +197,42 @@ const Dashboard = () => {
       const destinationTasks = Array.from(tasks[destination.droppableId]);
 
       const [movedTask] = sourceTasks.splice(source.index, 1);
-      movedTask.status = destination.droppableId === 'todo' ? 'To Do' : destination.droppableId === 'inProgress' ? 'In Progress' : 'Done';
+      movedTask.status =
+        destination.droppableId === "todo"
+          ? "To Do"
+          : destination.droppableId === "inProgress"
+          ? "In Progress"
+          : "Done";
       destinationTasks.splice(destination.index, 0, movedTask);
 
-      setTasks(prevTasks => ({
+      setTasks((prevTasks) => ({
         ...prevTasks,
         [source.droppableId]: sourceTasks,
-        [destination.droppableId]: destinationTasks
+        [destination.droppableId]: destinationTasks,
       }));
 
-      axios.patch(`http://localhost:5000/api/${movedTask._id}/move`, { newStatus: movedTask.status }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
-      })
-      .catch(error => {
-        console.error("Error moving task:", error);
-      });
+      api
+        .patch(
+          `/api/${movedTask._id}/move`,
+          { newStatus: movedTask.status },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }
+        )
+        .catch((error) => {
+          console.error("Error moving task:", error);
+        });
+    } else {
+      const listCopy = Array.from(tasks[source.droppableId]);
+      const [movedTask] = listCopy.splice(source.index, 1);
+      listCopy.splice(destination.index, 0, movedTask);
+
+      setTasks((prevTasks) => ({
+        ...prevTasks,
+        [source.droppableId]: listCopy,
+      }));
     }
   };
 
@@ -196,7 +248,12 @@ const Dashboard = () => {
       </AppBar>
       <Container>
         <Box mt={3} display="flex" justifyContent="space-between">
-          <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleAddTaskOpen}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleAddTaskOpen}
+          >
             Add Task
           </Button>
           <TextField variant="outlined" placeholder="Search..." size="small" />
@@ -216,13 +273,23 @@ const Dashboard = () => {
             {Object.entries(tasks).map(([status, taskList]) => (
               <Droppable droppableId={status} key={status}>
                 {(provided) => (
-                  <Grid item xs={12} md={4} key={status} ref={provided.innerRef} {...provided.droppableProps}>
+                  <Grid
+                    item
+                    xs={12}
+                    md={4}
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
                     <Card>
                       <Typography variant="h6" align="center" color="primary">
                         {status.toUpperCase()}
                       </Typography>
                       {taskList.map((task, index) => (
-                        <Draggable key={task._id} draggableId={task._id} index={index}>
+                        <Draggable
+                          key={task._id}
+                          draggableId={task._id}
+                          index={index}
+                        >
                           {(provided) => (
                             <Card
                               ref={provided.innerRef}
@@ -233,11 +300,11 @@ const Dashboard = () => {
                             >
                               <CardContent>
                                 <CardHeader title={task.title} />
-                                <Typography variant="body2" color="textSecondary">
+                                <Typography
+                                  variant="body2"
+                                  color="textSecondary"
+                                >
                                   {task.description}
-                                </Typography>
-                                <Typography variant="caption" color="textSecondary">
-                                  Created at: {task.createdAt}
                                 </Typography>
                               </CardContent>
                               <CardActions>
@@ -249,7 +316,12 @@ const Dashboard = () => {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="contained" size="small" color="error" onClick={() => handleDeleteTask(task._id)}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleDeleteTask(task._id)}
+                                >
                                   Delete
                                 </Button>
                                 <Button
@@ -313,8 +385,21 @@ const Dashboard = () => {
               <MenuItem value="Done">Done</MenuItem>
             </TextField>
             <Box sx={{ mt: 2 }}>
-              <Button onClick={handleCreateTask} color="primary" variant="contained">Create</Button>
-              <Button onClick={handleAddTaskClose} color="error" variant="contained" sx={{ ml: 2 }}>Cancel</Button>
+              <Button
+                onClick={handleCreateTask}
+                color="primary"
+                variant="contained"
+              >
+                Create
+              </Button>
+              <Button
+                onClick={handleAddTaskClose}
+                color="error"
+                variant="contained"
+                sx={{ ml: 2 }}
+              >
+                Cancel
+              </Button>
             </Box>
           </Box>
         </Modal>
@@ -354,7 +439,9 @@ const Dashboard = () => {
               label="Title"
               name="title"
               value={selectedTask?.title}
-              onChange={(e) => setSelectedTask({ ...selectedTask, title: e.target.value })}
+              onChange={(e) =>
+                setSelectedTask({ ...selectedTask, title: e.target.value })
+              }
               sx={{ mt: 2 }}
             />
             <TextField
@@ -364,7 +451,12 @@ const Dashboard = () => {
               multiline
               rows={4}
               value={selectedTask?.description}
-              onChange={(e) => setSelectedTask({ ...selectedTask, description: e.target.value })}
+              onChange={(e) =>
+                setSelectedTask({
+                  ...selectedTask,
+                  description: e.target.value,
+                })
+              }
               sx={{ mt: 2 }}
             />
             <TextField
@@ -372,7 +464,9 @@ const Dashboard = () => {
               label="Status"
               name="status"
               value={selectedTask?.status}
-              onChange={(e) => setSelectedTask({ ...selectedTask, status: e.target.value })}
+              onChange={(e) =>
+                setSelectedTask({ ...selectedTask, status: e.target.value })
+              }
               fullWidth
               sx={{ mt: 2 }}
             >
@@ -380,7 +474,12 @@ const Dashboard = () => {
               <MenuItem value="In Progress">In Progress</MenuItem>
               <MenuItem value="Done">Done</MenuItem>
             </TextField>
-            <Button onClick={handleUpdateTask} variant="contained" color="primary" sx={{ mt: 2 }}>
+            <Button
+              onClick={handleUpdateTask}
+              variant="contained"
+              color="primary"
+              sx={{ mt: 2 }}
+            >
               Save
             </Button>
             <Button

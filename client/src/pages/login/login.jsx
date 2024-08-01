@@ -4,26 +4,30 @@ import { Google as GoogleIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const Register = () => {
-  const [name, setName] = useState('');
+const api = axios.create({
+  baseURL: 'https://task-manager-nx1i.onrender.com'
+});
+
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSignup = async (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/register', { name, email, password });
+      const response = await api.post('/login', { email, password });
       const { token } = response.data;
       localStorage.setItem('authToken', token); // Store the token
       navigate('/dashboard'); // Redirect to dashboard
     } catch (error) {
       console.error('Error logging in:', error);
+      // Optionally, set error message state to display to the user
     }
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:5000/auth/google';
+    window.location.href = `${api.defaults.baseURL}/auth/google`;
   };
 
   return (
@@ -34,7 +38,7 @@ const Register = () => {
             Task Manager
           </Typography>
           <Button color="inherit" onClick={() => navigate('/login')}>Login</Button>
-          <Button color="inherit" onClick={() => navigate('/signup')}>Signup</Button>
+          <Button color="inherit" onClick={() => navigate('/register')}>Signup</Button>
         </Toolbar>
       </AppBar>
       <Container component="main" maxWidth="xs">
@@ -47,22 +51,9 @@ const Register = () => {
           }}
         >
           <Typography component="h1" variant="h5">
-            SignUp
+            Login
           </Typography>
-          <Box component="form" onSubmit={handleSignup} sx={{ mt: 1 }}>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="name"
-              label="Name"
-              name="name"
-              autoComplete="name"
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+          <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -96,13 +87,13 @@ const Register = () => {
               color="primary"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign Up
+              Login
             </Button>
             <Box display="flex" justifyContent="space-between">
               <Typography variant="body2">
-                Already have an account?{' '}
-                <Link href="#" variant="body2" onClick={() => navigate('/login')}>
-                  Login
+                Don't have an account?{' '}
+                <Link href="#" variant="body2" onClick={() => navigate('/register')}>
+                  Signup
                 </Link>
               </Typography>
             </Box>
@@ -123,4 +114,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;

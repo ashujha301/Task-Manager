@@ -27,7 +27,7 @@ app.use(passport.session());
 
 // CORS options
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: 'https://task-manager-zeta-mocha.vercel.app',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };

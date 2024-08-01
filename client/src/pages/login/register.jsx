@@ -4,26 +4,30 @@ import { Google as GoogleIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const Login = () => {
+const api = axios.create({
+  baseURL: 'https://task-manager-nx1i.onrender.com'
+});
+
+const Register = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (event) => {
+  const handleSignup = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/login', { email, password });
+      const response = await api.post('/register', { email, name, password });
       const { token } = response.data;
       localStorage.setItem('authToken', token); // Store the token
       navigate('/dashboard'); // Redirect to dashboard
     } catch (error) {
       console.error('Error logging in:', error);
-      // Optionally, set error message state to display to the user
     }
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:5000/auth/google';
+    window.location.href = `${api.defaults.baseURL}/auth/google`;
   };
 
   return (
@@ -34,7 +38,7 @@ const Login = () => {
             Task Manager
           </Typography>
           <Button color="inherit" onClick={() => navigate('/login')}>Login</Button>
-          <Button color="inherit" onClick={() => navigate('/register')}>Signup</Button>
+          <Button color="inherit" onClick={() => navigate('/signup')}>Signup</Button>
         </Toolbar>
       </AppBar>
       <Container component="main" maxWidth="xs">
@@ -47,9 +51,22 @@ const Login = () => {
           }}
         >
           <Typography component="h1" variant="h5">
-            Login
+            SignUp
           </Typography>
-          <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSignup} sx={{ mt: 1 }}>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="name"
+              label="Name"
+              name="name"
+              autoComplete="name"
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
             <TextField
               variant="outlined"
               margin="normal"
@@ -83,13 +100,13 @@ const Login = () => {
               color="primary"
               sx={{ mt: 3, mb: 2 }}
             >
-              Login
+              Sign Up
             </Button>
             <Box display="flex" justifyContent="space-between">
               <Typography variant="body2">
-                Don't have an account?{' '}
-                <Link href="#" variant="body2" onClick={() => navigate('/register')}>
-                  Signup
+                Already have an account?{' '}
+                <Link href="#" variant="body2" onClick={() => navigate('/login')}>
+                  Login
                 </Link>
               </Typography>
             </Box>
@@ -110,4 +127,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
