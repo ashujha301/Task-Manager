@@ -21,7 +21,7 @@ router.get('/google/callback',
     const token = jwt.sign({ id: req.user._id }, secret_key, { expiresIn: '1d' });
 
     // Redirect or send the token
-    res.redirect(`http://localhost:5173/dashboard`); // Example: redirect with token
+    res.redirect(`http://task-manager-nx1i.onrender.com/dashboard`); // Example: redirect with token
     // or res.json({ token }); // Example: send token as JSON
   }
 );
