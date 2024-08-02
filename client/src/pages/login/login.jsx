@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Box, TextField, Button, Typography, Link, AppBar, Toolbar } from '@mui/material';
 import { Google as GoogleIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,16 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Extract token from URL
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      localStorage.setItem('authToken', token); // Store the token
+      navigate('/dashboard'); // Redirect to dashboard
+    }
+  }, [navigate]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
