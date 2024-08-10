@@ -1,5 +1,7 @@
 # Task-Manager
 
+Task Manager web App helps you to manage your task efficiently
+
 Client Deployed on vercel :- https://task-manager-zeta-mocha.vercel.app/
 server deployed on renderer:- https://task-manager-nx1i.onrender.com
 
@@ -16,9 +18,8 @@ Completed tasks:-
 Pending tasks:- 
 
 1. Redux state management for protected routes in client
-2. http Only Cookie management for the authtoken, Now it uses local storage to store the authtoken.
-3. Implementing Logout functionality
-4. Google auth access for the live server is not given thats why it showing access error
-5. Test functions
-6. Rate Limiter for the server
-7. sql injection attack not handled, it should use string id's rather than id's
+2. Implementing Logout functionality
+3. Google auth access for the live server is not given thats why it showing access error
+4. Test functions
+5. Rate Limiter for the server
+6. sql injection attack not handled, it should use string id's rather than id's
