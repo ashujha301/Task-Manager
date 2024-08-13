@@ -25,9 +25,23 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+//Allowed curls:-
+const allowedOrigins = [
+  'https://task-manager-zeta-mocha.vercel.app',
+  'http://localhost:5173',
+  'http://54.91.2.78:5173',
+];
+
 // CORS options
 const corsOptions = {
-  origin: 'https://task-manager-zeta-mocha.vercel.app',
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      // Allow requests with no origin (e.g., mobile apps, curl requests)
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };
